@@ -76,7 +76,7 @@ router.post("/verify-payment", async (req, res) => {
     const ticketId = uuidv4();
     tickets[ticketId] = { ...attendee, used: false };
   
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://localhost:3000/validate/${ticketId}`;
+   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://qr-code-8h8f.vercel.app/validate/${ticketId}`;
     const response = await fetch(qrUrl);
     const qrImageBytes = await response.arrayBuffer();
   
