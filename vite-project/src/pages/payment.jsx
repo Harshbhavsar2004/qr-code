@@ -48,7 +48,7 @@ export default function ConcertTicketPurchase() {
   
     try {
       // 1. Create Razorpay order
-      const res = await fetch("http://localhost:5000/api/create-order", {
+      const res = await fetch("https://qr-code-8h8f.vercel.app/api/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount: totalAmount }),
@@ -66,7 +66,7 @@ export default function ConcertTicketPurchase() {
         order_id: order.id,
         handler: async function (response ) {
           // 3. Verify payment & send tickets
-          const verifyRes = await fetch("http://localhost:5000/api/verify-payment", {
+          const verifyRes = await fetch("https://qr-code-8h8f.vercel.app/api/verify-payment", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
