@@ -1,50 +1,130 @@
-import { useState } from "react"
-import { Music, User, Mail, CreditCard } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+"use client";
 
+import { useState } from "react";
+import { Users, User, Users2, Crown, Info } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
-export default function ConcertTicketPurchase() {
-  const [ticketCount, setTicketCount] = useState(1)
-  const [persons, setPersons] = useState([{ name: "", email: "" }])
-  const PRICE_PER_TICKET = 1
+export default function TicketBooking() {
+  const [ticketType, setTicketType] = useState("male-stag");
+  const [individualTicketCount, setIndividualTicketCount] = useState(1);
+  const [primaryContact, setPrimaryContact] = useState({
+    name: "",
+    email: "",
+    phone: "",
+  });
+  const [individualPersons, setIndividualPersons] = useState([]);
+  const [tablePersons, setTablePersons] = useState([
+    { name: "", email: "", phone: "" },
+  ]);
+  const [tablePersonCount, setTablePersonCount] = useState(0);
 
-  const handleTicketCountChange = (value) => {
-    const count = Number.parseInt(value)
-    setTicketCount(count)
+  // Ticket pricing information
+  const ticketPrices = {
+    "male-stag": { entry: 500, cover: 100, maxPersons: 1 },
+    "female-stag": { entry: 400, cover: 100, maxPersons: 1 },
+    couple: { entry: 800, cover: 300, maxPersons: 2 },
+    "table-silver": { entry: 6000, cover: 5000, minPersons: 6, maxPersons: 7 },
+    "table-gold": { entry: 9000, cover: 8000, minPersons: 9, maxPersons: 10 },
+    "table-platinum": {
+      entry: 11000,
+      cover: 9000,
+      minPersons: 13,
+      maxPersons: 14,
+    },
+  };
 
-    // Update persons array based on new ticket count
-    if (count > persons.length) {
-      // Add new empty person details
-      setPersons([
-        ...persons,
-        ...Array(count - persons.length)
+  const handleTicketTypeChange = (value) => {
+    setTicketType(value);
+    setIndividualTicketCount(1);
+
+    // Reset table person details based on ticket type
+    if (value.startsWith("table-")) {
+      const ticketInfo = ticketPrices[value];
+      const initialCount = ticketInfo.minPersons || 1;
+      setTablePersonCount(initialCount);
+      setTablePersons(
+        Array(initialCount)
           .fill(0)
-          .map(() => ({ name: "", email: "" })),
-      ])
-    } else if (count < persons.length) {
-      // Remove excess person details
-      setPersons(persons.slice(0, count))
+          .map(() => ({ name: "", email: "", phone: "" }))
+      );
     }
-  }
+  };
 
-  const updatePersonDetail = (index, field, value) => {
-    const updatedPersons = [...persons]
-    updatedPersons[index] = { ...updatedPersons[index], [field]: value }
-    setPersons(updatedPersons)
-  }
+  const handleIndividualTicketCountChange = (value) => {
+    setIndividualTicketCount(Number.parseInt(value));
+  };
 
-  const calculateTotal = () => {
-    return ticketCount * PRICE_PER_TICKET
-  }
+  const handleTablePersonCountChange = (value) => {
+    const count = Number.parseInt(value);
+    setTablePersonCount(count);
+
+    // Update persons array based on new count
+    if (count > tablePersons.length) {
+      // Add new empty person details
+      setTablePersons([
+        ...tablePersons,
+        ...Array(count - tablePersons.length)
+          .fill(0)
+          .map(() => ({ name: "", email: "", phone: "" })),
+      ]);
+    } else if (count < tablePersons.length) {
+      // Remove excess person details
+      setTablePersons(tablePersons.slice(0, count));
+    }
+  };
+
+  const updatePrimaryContact = (field, value) => {
+    setPrimaryContact({ ...primaryContact, [field]: value });
+  };
+
+  const updateTablePersonDetail = (index, field, value) => {
+    const updatedPersons = [...tablePersons];
+    updatedPersons[index] = { ...updatedPersons[index], [field]: value };
+    setTablePersons(updatedPersons);
+  };
+
+  const calculateTotalPrice = () => {
+    if (ticketType.startsWith("table-")) {
+      return ticketPrices[ticketType].entry;
+    } else if (ticketType === "couple") {
+      return (
+        ticketPrices[ticketType].entry * Math.ceil(individualTicketCount / 2)
+      );
+    } else {
+      return ticketPrices[ticketType].entry * individualTicketCount;
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
   
-    const totalAmount = calculateTotal();
+    const totalAmount = calculateTotalPrice();
+    const singleTicketPrice = ticketPrices[ticketType].entry;
   
     try {
       // 1. Create Razorpay order
@@ -58,13 +138,13 @@ export default function ConcertTicketPurchase() {
   
       // 2. Launch Razorpay payment
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_live_x0HMOJCEo5eIlI",
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_iRK4pDuqaBYOMe",
         amount: order.amount,
         currency: "INR",
         name: "Concert Ticket",
         description: "Summer Music Festival 2024",
         order_id: order.id,
-        handler: async function (response ) {
+        handler: async function (response) {
           // 3. Verify payment & send tickets
           const verifyRes = await fetch("http://localhost:5000/api/verify-payment", {
             method: "POST",
@@ -73,9 +153,11 @@ export default function ConcertTicketPurchase() {
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_order_id: response.razorpay_order_id,
               razorpay_signature: response.razorpay_signature,
-              email: persons[0].email, // Main contact
-              name: persons[0].name,
-              attendees: persons,
+              email: primaryContact.email, // Main contact
+              name: primaryContact.name,
+              attendees: tablePersons,
+              package: ticketType, // Include package information
+              price: singleTicketPrice,
             }),
           });
   
@@ -96,96 +178,293 @@ export default function ConcertTicketPurchase() {
       alert("Something went wrong!");
     }
   };
-  
+
+  const renderTablePersonForms = () => {
+    return tablePersons.map((person, index) => (
+      <div key={index} className="space-y-4 p-4 border rounded-lg">
+        <h4 className="font-medium">Person #{index + 1}</h4>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="space-y-2">
+            <Label htmlFor={`name-${index}`}>Full Name</Label>
+            <Input
+              id={`name-${index}`}
+              value={person.name}
+              onChange={(e) =>
+                updateTablePersonDetail(index, "name", e.target.value)
+              }
+              placeholder="Enter full name"
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor={`email-${index}`}>Email Address</Label>
+            <Input
+              id={`email-${index}`}
+              type="email"
+              value={person.email}
+              onChange={(e) =>
+                updateTablePersonDetail(index, "email", e.target.value)
+              }
+              placeholder="Enter email address"
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor={`phone-${index}`}>Phone Number</Label>
+            <Input
+              id={`phone-${index}`}
+              type="tel"
+              value={person.phone}
+              onChange={(e) =>
+                updateTablePersonDetail(index, "phone", e.target.value)
+              }
+              placeholder="Enter phone number"
+              required
+            />
+          </div>
+        </div>
+      </div>
+    ));
+  };
+
+  const renderTableOptions = () => {
+    if (!ticketType.startsWith("table-")) return null;
+
+    const ticketInfo = ticketPrices[ticketType];
+    const minPersons = ticketInfo.minPersons || 1;
+    const maxPersons = ticketInfo.maxPersons || 1;
+
+    const options = [];
+    for (let i = minPersons; i <= maxPersons; i++) {
+      options.push(
+        <SelectItem key={i} value={i.toString()}>
+          {i} people
+        </SelectItem>
+      );
+    }
+
+    return (
+      <div className="space-y-2 mb-6">
+        <Label htmlFor="person-count">Number of People</Label>
+        <Select
+          value={tablePersonCount.toString()}
+          onValueChange={handleTablePersonCountChange}
+        >
+          <SelectTrigger id="person-count" className="w-full sm:w-[180px]">
+            <SelectValue placeholder="Select number of people" />
+          </SelectTrigger>
+          <SelectContent>{options}</SelectContent>
+        </Select>
+      </div>
+    );
+  };
+
+  const renderIndividualTicketOptions = () => {
+    if (ticketType.startsWith("table-")) return null;
+
+    const maxCount = ticketType === "couple" ? 10 : 20; // Arbitrary max limits
+    const options = [];
+
+    for (let i = 1; i <= maxCount; i++) {
+      options.push(
+        <SelectItem key={i} value={i.toString()}>
+          {i}{" "}
+          {ticketType === "couple"
+            ? i === 1
+              ? "couple"
+              : "couples"
+            : "ticket(s)"}
+        </SelectItem>
+      );
+    }
+
+    return (
+      <div className="space-y-2 mb-6">
+        <Label htmlFor="ticket-count">Number of Tickets</Label>
+        <Select
+          value={individualTicketCount.toString()}
+          onValueChange={handleIndividualTicketCountChange}
+        >
+          <SelectTrigger id="ticket-count" className="w-full sm:w-[180px]">
+            <SelectValue placeholder="Select number of tickets" />
+          </SelectTrigger>
+          <SelectContent>{options}</SelectContent>
+        </Select>
+      </div>
+    );
+  };
+
   return (
-    <Card className="w-full max-w-3xl mx-auto">
+    <Card className="w-full max-w-4xl mx-auto">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Music className="h-6 w-6" />
-          Summer Music Festival 2024
-        </CardTitle>
+        <CardTitle>Event Ticket Booking</CardTitle>
         <CardDescription>
-          Join us for an unforgettable night of music featuring top artists from around the world. Experience amazing
-          performances, great food, and an electric atmosphere at the Summer Music Festival 2024. Don't miss this
-          opportunity to create memories that will last a lifetime!
+          Select your ticket type and provide the required information to book
+          your tickets.
         </CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="ticket-count">Number of Tickets</Label>
-            <Select value={ticketCount.toString()} onValueChange={handleTicketCountChange}>
-              <SelectTrigger id="ticket-count" className="w-full sm:w-[180px]">
-                <SelectValue placeholder="Select tickets" />
-              </SelectTrigger>
-              <SelectContent>
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
-                  <SelectItem key={num} value={num.toString()}>
-                    {num} {num === 1 ? "ticket" : "tickets"}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <Tabs defaultValue="individual" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="individual">Individual Entry</TabsTrigger>
+              <TabsTrigger value="table">Table Reservations</TabsTrigger>
+            </TabsList>
 
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">Attendee Information</h3>
-            {persons.map((person, index) => (
-              <div key={index} className="space-y-4 p-4 border rounded-lg">
-                <h4 className="font-medium">Ticket #{index + 1}</h4>
-                <div className="grid gap-4 sm:grid-cols-2">
+            <TabsContent value="individual" className="space-y-4 pt-4">
+              <RadioGroup
+                value={ticketType}
+                onValueChange={(value) => handleTicketTypeChange(value)}
+                className="grid grid-cols-1 md:grid-cols-3 gap-4"
+              >
+                <div className="border rounded-lg p-4 relative">
+                  <RadioGroupItem
+                    value="male-stag"
+                    id="male-stag"
+                    className="absolute top-4 right-4"
+                  />
+                  <div className="mb-4 flex items-center gap-2">
+                    {" "}
+                    <User /> Male Stag{" "}
+                  </div>{" "}
+                  <div className="text-sm text-muted-foreground">
+                    Entry: ₹500 + ₹100 cover
+                  </div>{" "}
+                </div>
+                <div className="border rounded-lg p-4 relative">
+                  <RadioGroupItem
+                    value="female-stag"
+                    id="female-stag"
+                    className="absolute top-4 right-4"
+                  />
+                  <div className="mb-4 flex items-center gap-2">
+                    <Users2 /> Female Stag
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Entry: ₹400 + ₹100 cover
+                  </div>
+                </div>
+
+                <div className="border rounded-lg p-4 relative">
+                  <RadioGroupItem
+                    value="couple"
+                    id="couple"
+                    className="absolute top-4 right-4"
+                  />
+                  <div className="mb-4 flex items-center gap-2">
+                    <Users /> Couple
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Entry: ₹800 + ₹300 cover
+                  </div>
+                </div>
+              </RadioGroup>
+
+              {renderIndividualTicketOptions()}
+
+              <div className="space-y-4">
+                <Label>Primary Contact Details</Label>
+                <div className="grid gap-4 sm:grid-cols-3">
                   <div className="space-y-2">
-                    <Label htmlFor={`name-${index}`} className="flex items-center gap-2">
-                      <User className="h-4 w-4" />
-                      Full Name
-                    </Label>
+                    <Label htmlFor="primary-name">Full Name</Label>
                     <Input
-                      id={`name-${index}`}
-                      value={person.name}
-                      onChange={(e) => updatePersonDetail(index, "name", e.target.value)}
-                      placeholder="Enter full name"
+                      id="primary-name"
+                      value={primaryContact.name}
+                      onChange={(e) =>
+                        updatePrimaryContact("name", e.target.value)
+                      }
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor={`email-${index}`} className="flex items-center gap-2">
-                      <Mail className="h-4 w-4" />
-                      Email Address
-                    </Label>
+                    <Label htmlFor="primary-email">Email Address</Label>
                     <Input
-                      id={`email-${index}`}
+                      id="primary-email"
                       type="email"
-                      value={person.email}
-                      onChange={(e) => updatePersonDetail(index, "email", e.target.value)}
-                      placeholder="Enter email address"
+                      value={primaryContact.email}
+                      onChange={(e) =>
+                        updatePrimaryContact("email", e.target.value)
+                      }
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="primary-phone">Phone Number</Label>
+                    <Input
+                      id="primary-phone"
+                      type="tel"
+                      value={primaryContact.phone}
+                      onChange={(e) =>
+                        updatePrimaryContact("phone", e.target.value)
+                      }
                       required
                     />
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
+            </TabsContent>
 
-          <div className="pt-4 border-t">
-            <div className="flex justify-between items-center">
-              <div>
-                <p className="text-sm text-muted-foreground">Price per ticket</p>
-                <p className="font-medium">₹{PRICE_PER_TICKET.toLocaleString()}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm text-muted-foreground">Total amount</p>
-                <p className="text-xl font-bold">₹{calculateTotal().toLocaleString()}</p>
-              </div>
-            </div>
-          </div>
+            <TabsContent value="table" className="space-y-4 pt-4">
+              <RadioGroup
+                value={ticketType}
+                onValueChange={(value) => handleTicketTypeChange(value)}
+                className="grid grid-cols-1 md:grid-cols-3 gap-4"
+              >
+                <div className="border rounded-lg p-4 relative">
+                  <RadioGroupItem
+                    value="table-silver"
+                    id="table-silver"
+                    className="absolute top-4 right-4"
+                  />
+                  <div className="mb-4 flex items-center gap-2">
+                    <Crown className="text-silver-500" /> Silver Table
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    6-7 people | ₹6000 + ₹5000 cover
+                  </div>
+                </div>
+
+                <div className="border rounded-lg p-4 relative">
+                  <RadioGroupItem
+                    value="table-gold"
+                    id="table-gold"
+                    className="absolute top-4 right-4"
+                  />
+                  <div className="mb-4 flex items-center gap-2">
+                    <Crown className="text-yellow-500" /> Gold Table
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    9-10 people | ₹9000 + ₹8000 cover
+                  </div>
+                </div>
+
+                <div className="border rounded-lg p-4 relative">
+                  <RadioGroupItem
+                    value="table-platinum"
+                    id="table-platinum"
+                    className="absolute top-4 right-4"
+                  />
+                  <div className="mb-4 flex items-center gap-2">
+                    <Crown className="text-gray-500" /> Platinum Table
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    13-14 people | ₹11000 + ₹9000 cover
+                  </div>
+                </div>
+              </RadioGroup>
+
+              {renderTableOptions()}
+              {renderTablePersonForms()}
+            </TabsContent>
+          </Tabs>
         </CardContent>
-        <CardFooter>
-          <Button type="submit" className="w-full" size="lg">
-            <CreditCard className="mr-2 h-4 w-4" />
-            Proceed to Payment
-          </Button>
+        <CardFooter className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="text-lg font-medium">
+            Total Price: ₹{calculateTotalPrice()}
+          </div>
+          <Button type="submit">Proceed to Payment</Button>
         </CardFooter>
       </form>
     </Card>
-  )
+  );
 }

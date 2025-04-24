@@ -10,10 +10,13 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "buffer": "^6.0.3",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "express": "^5.1.0",
+    "node-fetch": "^3.3.2",
     "nodemailer": "^6.10.1",
+    "pdf-lib": "^1.17.1",
     "razorpay": "^2.9.6",
     "uuid": "^11.1.0"
   }
