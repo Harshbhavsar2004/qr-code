@@ -18,8 +18,8 @@ const templateBytes = fs.readFileSync(templatePath);
 const router = express.Router();
 
 const razorpay = new Razorpay({
-  key_id: "rzp_test_iRK4pDuqaBYOMe",
-  key_secret: "1NLH3hJ9CxB6iiIrnNAAowKV",
+  key_id: "rzp_live_deehYNRaiONGTI",
+  key_secret: "9QpG2eGSeE8vm9ILALg7tNjb",
 });
 
 let tickets = {};
@@ -27,7 +27,7 @@ let tickets = {};
 router.post("/create-order", async (req, res) => {
   const { amount } = req.body;
   const order = await razorpay.orders.create({
-    amount: amount * 100,
+    amount: amount,
     currency: "INR",
     receipt: `receipt_${Date.now()}`,
   });
@@ -58,7 +58,7 @@ router.post("/verify-payment", async (req, res) => {
 
   const sign = razorpay_order_id + "|" + razorpay_payment_id;
   const expected = crypto
-    .createHmac("sha256", "1NLH3hJ9CxB6iiIrnNAAowKV")
+    .createHmac("sha256", "9QpG2eGSeE8vm9ILALg7tNjb")
     .update(sign.toString())
     .digest("hex");
 
