@@ -5,7 +5,7 @@ const paymentRoutes = require('./routes/payment.js');
 
 const app = express();
 
-const allowedOrigins = ['http://localhost:5173', 'http://localhost:5173/']; // Add more origins as needed
+const allowedOrigins = ['https://qr-code-ruby-one.vercel.app/', 'https://qr-code-ruby-one.vercel.app']; // Add more origins as needed
 
 
 
