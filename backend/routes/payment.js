@@ -18,8 +18,8 @@ const templateBytes = fs.readFileSync(templatePath);
 const router = express.Router();
 
 const razorpay = new Razorpay({
-  key_id: "rzp_test_iRK4pDuqaBYOMe",
-  key_secret: "1NLH3hJ9CxB6iiIrnNAAowKV",
+  key_id: "rzp_live_6aiQ8KOWHuNDfK",
+  key_secret: "iojRNRjEzCaeyrk5j9PnfTeM",
 });
 
 let tickets = {};
@@ -27,7 +27,7 @@ let tickets = {};
 router.post("/create-order", async (req, res) => {
   const { amount } = req.body;
   const order = await razorpay.orders.create({
-    amount: amount * 100,
+    amount: amount ,
     currency: "INR",
     receipt: `receipt_${Date.now()}`,
   });
@@ -58,7 +58,7 @@ router.post("/verify-payment", async (req, res) => {
 
   const sign = razorpay_order_id + "|" + razorpay_payment_id;
   const expected = crypto
-    .createHmac("sha256", "1NLH3hJ9CxB6iiIrnNAAowKV")
+    .createHmac("sha256", "iojRNRjEzCaeyrk5j9PnfTeM")
     .update(sign.toString())
     .digest("hex");
 
@@ -76,7 +76,7 @@ router.post("/verify-payment", async (req, res) => {
     const ticketId = uuidv4();
     tickets[ticketId] = { ...attendee, used: false };
   
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://localhost:3000/validate/${ticketId}`;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://qr-code-8h8f.vercel.app/api/validate/${ticketId}`;
     const response = await fetch(qrUrl);
     const qrImageBytes = await response.arrayBuffer();
   
@@ -87,7 +87,7 @@ router.post("/verify-payment", async (req, res) => {
     const page = pages[0];
   
     // Add attendee-specific data
-    page.drawText(`Name: ${attendee.name}`, { x: 20, y: 90, size: 15, font, color: rgb(0, 0, 0) });
+    page.drawText(`Name: ${attendee.name || name}`, { x: 20, y: 90, size: 15, font, color: rgb(0, 0, 0) });
     page.drawText(`${price}`, { x: 65, y: 35, size: 12, font, color: rgb(0, 0, 0) });
     // Draw QR code at the bottom
     page.drawImage(qrImage, {
