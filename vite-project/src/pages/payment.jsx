@@ -138,7 +138,7 @@ export default function TicketBooking() {
   
       // 2. Launch Razorpay payment
       const options = {
-        key: "rzp_test_W5nEe62sdmXyMa",
+        key: "rzp_live_lfqaisJcKJ0oGX",
         amount: order.amount,
         currency: "INR",
         name: "Concert Ticket",
