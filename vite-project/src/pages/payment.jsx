@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState , useEffect } from "react";
 import { Users, User, Users2, Crown, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -242,7 +242,14 @@ export default function TicketBooking() {
         </SelectItem>
       );
     }
-
+  useEffect(() => {
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (!isMobile) {
+      alert("This page is only accessible on mobile devices.");
+      window.location.href = "/not-supported"; // Redirect to a not supported page
+    }
+  }, []);
+    
     return (
       <div className="space-y-2 mb-6">
         <Label htmlFor="person-count">Number of People</Label>
