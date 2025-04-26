@@ -46,6 +46,10 @@ useEffect(() => {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     if (!isMobile) {
       alert("This page is only accessible on mobile devices.");
+      <div style={{ textAlign: 'center', padding: '50px' }}>
+      <h1>Page Not Supported</h1>
+      <p>This page is only accessible on mobile devices. Please try accessing it from a mobile device.</p>
+    </div>
     }
   }, []);
   // Ticket pricing information
