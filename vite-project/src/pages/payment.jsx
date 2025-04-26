@@ -246,7 +246,6 @@ export default function TicketBooking() {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     if (!isMobile) {
       alert("This page is only accessible on mobile devices.");
-      window.location.href = "/not-supported"; // Redirect to a not supported page
     }
   }, []);
     
