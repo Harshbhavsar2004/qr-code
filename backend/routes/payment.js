@@ -87,7 +87,7 @@ router.post("/verify-payment", async (req, res) => {
     const page = pages[0];
   
     // Add attendee-specific data
-    page.drawText(`Name: ${attendee.name || name}`, { x: 20, y: 90, size: 15, font, color: rgb(0, 0, 0) });
+    page.drawText(`Name: ${attendee.name || name}`, { x: 20, y: 90, size: 10, font, color: rgb(0, 0, 0) });
     page.drawText(`${price}`, { x: 65, y: 35, size: 12, font, color: rgb(0, 0, 0) });
     // Draw QR code at the bottom
     page.drawImage(qrImage, {
