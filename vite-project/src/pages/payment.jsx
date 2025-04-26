@@ -48,8 +48,8 @@ export default function TicketBooking() {
     "male-stag": { entry: 500, cover: 100, maxPersons: 1 },
     "female-stag": { entry: 400, cover: 100, maxPersons: 1 },
     couple: { entry: 800, cover: 300, maxPersons: 2 },
-    "table-silver": { entry: 6000, cover: 5000, minPersons: 6, maxPersons: 7 },
-    "table-gold": { entry: 9000, cover: 8000, minPersons: 9, maxPersons: 10 },
+    "table-silver": { entry: 6000, cover: 3000, minPersons: 6, maxPersons: 7 },
+    "table-gold": { entry: 9000, cover: 5000, minPersons: 9, maxPersons: 10 },
     "table-platinum": {
       entry: 11000,
       cover: 9000,
@@ -138,7 +138,7 @@ export default function TicketBooking() {
   
       // 2. Launch Razorpay payment
       const options = {
-        key: "rzp_live_lfqaisJcKJ0oGX",
+        key:"rzp_live_lfqaisJcKJ0oGX",
         amount: order.amount,
         currency: "INR",
         name: "Concert Ticket",
@@ -280,16 +280,8 @@ export default function TicketBooking() {
 
     return (
       <div className="space-y-2 mb-6">
-        <Label htmlFor="ticket-count">Number of Tickets</Label>
-        <Select
-          value={individualTicketCount.toString()}
-          onValueChange={handleIndividualTicketCountChange}
-        >
-          <SelectTrigger id="ticket-count" className="w-full sm:w-[180px]">
-            <SelectValue placeholder="Select number of tickets" />
-          </SelectTrigger>
-          <SelectContent>{options}</SelectContent>
-        </Select>
+
+        
       </div>
     );
   };
@@ -328,7 +320,7 @@ export default function TicketBooking() {
                     <User /> Male Stag{" "}
                   </div>{" "}
                   <div className="text-sm text-muted-foreground">
-                    Entry: ₹500 + ₹100 cover
+                    Entry: ₹500 (Get ₹100 worth of coupons for the concert!)
                   </div>{" "}
                 </div>
                 <div className="border rounded-lg p-4 relative">
@@ -341,7 +333,7 @@ export default function TicketBooking() {
                     <Users2 /> Female Stag
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    Entry: ₹400 + ₹100 cover
+                    Entry: ₹400 (Get ₹100 worth of coupons for the concert!)
                   </div>
                 </div>
 
@@ -355,7 +347,7 @@ export default function TicketBooking() {
                     <Users /> Couple
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    Entry: ₹800 + ₹300 cover
+                    Entry: ₹800 (Get ₹300 worth of coupons for the concert!)
                   </div>
                 </div>
               </RadioGroup>
@@ -420,7 +412,8 @@ export default function TicketBooking() {
                     <Crown className="text-silver-500" /> Silver Table
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    6-7 people | ₹6000 + ₹5000 cover
+                    6-7 people | ₹6000  <br/>
+                    We will provide coupons worth ₹3000 for use on food and beverages during the concert.
                   </div>
                 </div>
 
@@ -434,7 +427,8 @@ export default function TicketBooking() {
                     <Crown className="text-yellow-500" /> Gold Table
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    9-10 people | ₹9000 + ₹8000 cover
+                    9-10 people | ₹9000 <br/>
+                    We will provide coupons worth ₹5000 for use on food and beverages during the concert.
                   </div>
                 </div>
 
@@ -443,9 +437,13 @@ export default function TicketBooking() {
                     value="table-platinum"
                     id="table-platinum"
                     className="absolute top-4 right-4"
+                    disabled
                   />
                   <div className="mb-4 flex items-center gap-2">
                     <Crown className="text-gray-500" /> Platinum Table
+                  </div>
+                  <div className="text-sm text-red-600 mb-3">
+                    *Already Booked
                   </div>
                   <div className="text-sm text-muted-foreground">
                     13-14 people | ₹11000 + ₹9000 cover
