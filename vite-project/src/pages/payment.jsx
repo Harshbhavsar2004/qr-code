@@ -42,7 +42,12 @@ export default function TicketBooking() {
     { name: "", email: "", phone: "" },
   ]);
   const [tablePersonCount, setTablePersonCount] = useState(0);
-
+useEffect(() => {
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (!isMobile) {
+      alert("This page is only accessible on mobile devices.");
+    }
+  }, []);
   // Ticket pricing information
   const ticketPrices = {
     "male-stag": { entry: 500, cover: 100, maxPersons: 1 },
@@ -242,12 +247,7 @@ export default function TicketBooking() {
         </SelectItem>
       );
     }
-  useEffect(() => {
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    if (!isMobile) {
-      alert("This page is only accessible on mobile devices.");
-    }
-  }, []);
+  
     
     return (
       <div className="space-y-2 mb-6">
