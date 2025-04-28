@@ -27,7 +27,7 @@ let tickets = {};
 router.post("/create-order", async (req, res) => {
   const { amount } = req.body;
   const order = await razorpay.orders.create({
-    amount: amount * 100,
+    amount: amount * 1,
     currency: "INR",
     receipt: `receipt_${Date.now()}`,
   });
